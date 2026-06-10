@@ -37,7 +37,7 @@ def generer_format_confluence(data):
     markup += f"| **Nom** | {data.get('name', '-')} |\n"
     markup += f"| **Titre** | {titre} |\n"
     markup += f"| **Catégorie** | {str(data.get('category', '-')).capitalize()} |\n"
-    markup += f"| **Sévérité** | {sev_display} |\n\n"
+    markup += f" | **Sévérité** | {sev_display} |\n\n"
     markup += "---\n\n"
 
     # --- DESCRIPTION ---
@@ -98,7 +98,6 @@ def generer_format_confluence(data):
     # --- ENRICHISSEMENT DES DONNÉES ---
     markup += "## 📊 Enrichissement des données\n\n"
 
-    # Récupération sécurisée du dictionnaire d'enrichissement (Ligne corrigée !)
     enrichment = data.get("enrichment", {})
 
     markup += "### 💰 Estimation des coûts\n"
