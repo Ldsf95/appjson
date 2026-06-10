@@ -18,7 +18,7 @@ def generer_format_confluence(data):
     markup += f"# ENGIE – Détection : {titre}\n"
     markup += "---\n\n"
 
-    # --- 📌 INFORMATIONS GÉNÉRALES ---
+    # --- INFORMATIONS GÉNÉRALES ---
     markup += "## 📌 Informations générales\n\n"
 
     # Gestion de la couleur pour la sévérité
@@ -40,19 +40,19 @@ def generer_format_confluence(data):
     markup += f"| **Sévérité** | {sev_display} |\n\n"
     markup += "---\n\n"
 
-    # --- 📄 DESCRIPTION ---
+    # --- DESCRIPTION ---
     markup += "## 📄 Description\n"
     markup += f"{data.get('description', 'Aucune description.')}\n\n"
     markup += "---\n\n"
 
-    # --- 🎯 SCOPE ---
+    # --- SCOPE ---
     markup += "## 🎯 Scope\n"
     markup += "```\n"
     markup += f"{data.get('scope', '-')}\n"
     markup += "```\n\n"
     markup += "---\n\n"
 
-    # --- ✅ CONDITIONS DE DÉTECTION ---
+    # --- CONDITIONS DE DÉTECTION ---
     markup += "## ✅ Conditions de détection\n"
     markup += f"Une ressource de type `{data.get('scope', 'ressource')}` est considérée comme vide si :\n\n"
 
@@ -77,7 +77,7 @@ def generer_format_confluence(data):
     markup += "```\n\n"
     markup += "---\n\n"
 
-    # --- 🚫 EXCLUSIONS ---
+    # --- EXCLUSIONS ---
     markup += "## 🚫 Exclusions\n"
     markup += "Certaines ressources sont volontairement ignorées :\n\n"
 
@@ -95,7 +95,7 @@ def generer_format_confluence(data):
         markup += "_Aucune exclusion configurée pour cette règle._\n\n"
     markup += "---\n\n"
 
-    # --- 📊 ENRICHISSEMENT DES DONNÉES ---
+    # --- ENRICHISSEMENT DES DONNÉES ---
     markup += "## 📊 Enrichissement des données\n\n"
 
     # Récupération sécurisée du dictionnaire d'enrichissement (Ligne corrigée !)
@@ -113,12 +113,12 @@ def generer_format_confluence(data):
         markup += "* Aucun champ supplémentaire collecté.\n"
     markup += "\n---\n\n"
 
-    # --- ⚠️ IMPACT ---
+    # --- IMPACT ---
     markup += "## ⚠️ Impact\n"
     markup += f"Une ressource spécifiée comme `{data.get('id')}` vide entraîne un **coût inutile de compute réservé**, même en l'absence d'application déployée ou d'usage réel.\n\n"
     markup += "---\n\n"
 
-    # --- 💡 RECOMMANDATION ---
+    # --- RECOMMANDATION ---
     markup += "## 💡 Recommandation\n\n"
     reco = data.get("recommendation", {})
 
@@ -206,7 +206,7 @@ with col2:
                 mime="text/plain",
             )
             st.success(
-                "Fiche technique prête ! Copie-colle directement dans Confluence. 🚀"
+                "Fiche technique prête ! Copie-colle directement dans Confluence."
             )
 
         except json.JSONDecodeError as e:
