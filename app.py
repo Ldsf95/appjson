@@ -1,27 +1,21 @@
 import json
 import streamlit as st
 
-
 # =====================================================================
-# PARTIE 1 : L'ALGORITHME (Format Markdown Moderne pour Confluence)
+# PARTIE 1 : L'ALGORITHME (Format HTML/Markdown Mixte pour Confluence)
 # =====================================================================
 def generer_format_confluence(data):
-    """
-    Génère le code au format Markdown.
-    Lors du copier-coller direct sur Confluence Cloud, il se transforme
-    automatiquement en titres bleus, tableaux et sections propres.
-    """
     markup = ""
+    # Code couleur bleu officiel d'Atlassian/Confluence
+    bleu_conf = "#00B7FF"
 
     # --- TITRE PRINCIPAL ---
     titre = data.get("title", data.get("name", "Règle sans titre"))
-    markup += f"# ENGIE – Détection : {titre}\n"
-    markup += "---\n\n"
+    markup += f"<h1 style='color: {bleu_conf};'>ENGIE – Détection : {titre}</h1>\n<hr>\n\n"
 
     # --- INFORMATIONS GÉNÉRALES ---
-    markup += "## 📌 Informations générales\n\n"
+    markup += f"<h2 style='color: {bleu_conf};'>📌 Informations générales</h2>\n\n"
 
-    # Gestion de la couleur pour la sévérité
     sev = str(data.get("severity", "medium")).lower()
     if sev == "high":
         sev_display = "🔴 High"
@@ -30,30 +24,29 @@ def generer_format_confluence(data):
     else:
         sev_display = "🟡 Medium"
 
-    # Tableau au format Markdown standard
     markup += "| Élément | Détails |\n"
     markup += "| --- | --- |\n"
     markup += f"| **ID** | {data.get('id', '-')} |\n"
     markup += f"| **Nom** | {data.get('name', '-')} |\n"
     markup += f"| **Titre** | {titre} |\n"
     markup += f"| **Catégorie** | {str(data.get('category', '-')).capitalize()} |\n"
-    markup += f" | **Sévérité** | {sev_display} |\n\n"
-    markup += "---\n\n"
+    markup += f"| **Sévérité** | {sev_display} |\n\n"
+    markup += "<hr>\n\n"
 
     # --- DESCRIPTION ---
-    markup += "## 📄 Description\n"
+    markup += f"<h2 style='color: {bleu_conf};'>📄 Description</h2>\n\n"
     markup += f"{data.get('description', 'Aucune description.')}\n\n"
-    markup += "---\n\n"
+    markup += "<hr>\n\n"
 
     # --- SCOPE ---
-    markup += "## 🎯 Scope\n"
+    markup += f"<h2 style='color: {bleu_conf};'>🎯 Scope</h2>\n\n"
     markup += "```\n"
     markup += f"{data.get('scope', '-')}\n"
     markup += "```\n\n"
-    markup += "---\n\n"
+    markup += "<hr>\n\n"
 
     # --- CONDITIONS DE DÉTECTION ---
-    markup += "## ✅ Conditions de détection\n"
+    markup += f"<h2 style='color: {bleu_conf};'>✅ Conditions de détection</h2>\n\n"
     markup += f"Une ressource de type `{data.get('scope', 'ressource')}` est considérée comme vide si :\n\n"
 
     cond_lines = []
@@ -75,17 +68,17 @@ def generer_format_confluence(data):
     markup += "```\n"
     markup += "\n AND \n".join(cond_lines) + "\n"
     markup += "```\n\n"
-    markup += "---\n\n"
+    markup += "<hr>\n\n"
 
     # --- EXCLUSIONS ---
-    markup += "## 🚫 Exclusions\n"
+    markup += f"<h2 style='color: {bleu_conf};'>🚫 Exclusions</h2>\n\n"
     markup += "Certaines ressources sont volontairement ignorées :\n\n"
 
     exclusions = data.get("exclusions", [])
     if exclusions:
         for idx, exc in enumerate(exclusions, 1):
             reason = exc.get("reason", "Aucune raison spécifiée")
-            markup += f"#### {idx}. {reason}\n"
+            markup += f"<h4 style='color: {bleu_conf};'>{idx}. {reason}</h4>\n\n"
             markup += f"* **Champ :** `{exc.get('field', '-')}`\n"
             markup += (
                 f"* **Condition :** {exc.get('operator', '-')} `{exc.get('value', 'isNotNull')}`\n"
@@ -93,38 +86,38 @@ def generer_format_confluence(data):
             markup += f"* **Raison :** {reason}\n\n"
     else:
         markup += "_Aucune exclusion configurée pour cette règle._\n\n"
-    markup += "---\n\n"
+    markup += "<hr>\n\n"
 
     # --- ENRICHISSEMENT DES DONNÉES ---
-    markup += "## 📊 Enrichissement des données\n\n"
+    markup += f"<h2 style='color: {bleu_conf};'>📊 Enrichissement des données</h2>\n\n"
 
     enrichment = data.get("enrichment", {})
 
-    markup += "### 💰 Estimation des coûts\n"
+    markup += f"<h3 style='color: {bleu_conf};'>💰 Estimation des coûts</h3>\n\n"
     markup += f"* Métrique : {enrichment.get('costEstimate', 'N/A')}\n\n"
 
-    markup += "### 📋 Champs supplémentaires collectés\n"
+    markup += f"<h3 style='color: {bleu_conf};'>📋 Champs supplémentaires collectés</h3>\n\n"
     fields = enrichment.get("fields", [])
     if fields:
         for f in fields:
             markup += f"* {f}\n"
     else:
         markup += "* Aucun champ supplémentaire collecté.\n"
-    markup += "\n---\n\n"
+    markup += "\n<hr>\n\n"
 
     # --- IMPACT ---
-    markup += "## ⚠️ Impact\n"
+    markup += f"<h2 style='color: {bleu_conf};'>⚠️ Impact</h2>\n\n"
     markup += f"Une ressource spécifiée comme `{data.get('id')}` vide entraîne un **coût inutile de compute réservé**, même en l'absence d'application déployée ou d'usage réel.\n\n"
-    markup += "---\n\n"
+    markup += "<hr>\n\n"
 
     # --- RECOMMANDATION ---
-    markup += "## 💡 Recommandation\n\n"
+    markup += f"<h2 style='color: {bleu_conf};'>💡 Recommandation</h2>\n\n"
     reco = data.get("recommendation", {})
 
-    markup += "### 🛠️ Action recommandée\n"
+    markup += f"<h3 style='color: {bleu_conf};'>🛠️ Action recommandée</h3>\n\n"
     markup += f"* ➡️ {reco.get('description', 'Aucune action spécifiée.')}\n\n"
 
-    markup += "### 📄 Détails\n"
+    markup += f"<h3 style='color: {bleu_conf};'>📄 Détails</h3>\n\n"
     markup += f"* L'action automatisée requise est le nettoyage de type : *{str(reco.get('action', 'N/A')).upper()}*\n"
     markup += "* Optimisation directe des coûts cloud Azure.\n\n"
 
@@ -132,9 +125,9 @@ def generer_format_confluence(data):
     risk_display = (
         "🟢 Low" if risk == "low" else "🔴 High" if risk == "high" else "🟡 Medium"
     )
-    markup += f"### ⚖️ Niveau de risque\n* {risk_display}\n\n"
+    markup += f"<h3 style='color: {bleu_conf};'>⚖️ Niveau de risque</h3>\n\n* {risk_display}\n\n"
 
-    markup += "### 💸 Économies potentielles\n"
+    markup += f"<h3 style='color: {bleu_conf};'>💸 Économies potentielles</h3>\n\n"
     markup += (
         f"* Économies estimées : *{reco.get('savings', '100%')} des coûts associés*\n"
     )
@@ -145,12 +138,9 @@ def generer_format_confluence(data):
 # =====================================================================
 # PARTIE 2 : L'INTERFACE GRAPHIQUE (Streamlit)
 # =====================================================================
-st.set_page_config(page_title="ENGIE FinOps Blueprint Converter", layout="wide")
+st.set_page_config(page_title="ENGIE FinOps Converter", layout="wide", page_icon="☁️")
 
-st.title("ENGIE FinOps – Convertisseur de Fichier Json en confluence")
-st.caption(
-    "Génération automatisée de fiches techniques Azure au format Markdown pour Confluence."
-)
+st.title("☁️ ENGIE FinOps – Convertisseur JSON vers Confluence")
 st.write("---")
 
 col1, col2 = st.columns(2)
@@ -185,28 +175,26 @@ with col1:
     )
 
 with col2:
-    st.subheader("2. Génére ton texte confluence")
+    st.subheader("2. Récupère ta fiche Confluence")
 
-    if st.button("Générer votre texte confluence", type="primary"):
+    if st.button("Générer la fiche", type="primary"):
         try:
             dictionnaire_json = json.loads(zone_texte_json)
             code_confluence = generer_format_confluence(dictionnaire_json)
 
-            st.text_area(
-                label="Copie ce bloc et colle-le DIRECTEMENT sur ta page Confluence :",
-                value=code_confluence,
-                height=420,
-            )
+            st.success("✅ Fiche générée avec succès !")
+            
+            st.write("###Option 1 : Copier le rendu visuel (Recommandé)")
+            st.info("💡 **Comment faire ?** Sélectionne tout le texte dans le cadre ci-dessous, fais `Ctrl+C` et colle avec `Ctrl+V` dans Confluence. Les titres seront parfaitement bleus !")
+            
+            # Le paramètre unsafe_allow_html=True permet d'interpréter notre code couleur HTML
+            with st.container(border=True):
+                st.markdown(code_confluence, unsafe_allow_html=True)
 
-            st.download_button(
-                label="Télécharger la fiche technique (.txt)",
-                data=code_confluence,
-                file_name=f"Confluence_{dictionnaire_json.get('name', 'regle_finops')}.txt",
-                mime="text/plain",
-            )
-            st.success(
-                "Fiche technique prête ! Copie-colle directement dans Confluence."
-            )
+            st.write("---")
+            st.write("### 💻 Option 2 : Code source (Alternative)")
+            st.write("Si besoin du code brut pour l'insérer avec la commande `/html` de Confluence :")
+            st.code(code_confluence, language="html")
 
         except json.JSONDecodeError as e:
             st.error(f"❌ Erreur de syntaxe JSON : {e}")
