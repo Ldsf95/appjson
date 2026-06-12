@@ -2,52 +2,55 @@ import json
 import streamlit as st
 
 # =====================================================================
-# PARTIE 1 : L'ALGORITHME (Format HTML/Markdown Mixte pour Confluence)
+# PARTIE 1 : L'ALGORITHME (Format HTML - Contenu Enrichi)
 # =====================================================================
 def generer_format_confluence(data):
     markup = ""
-    # Code couleur bleu officiel d'Atlassian/Confluence
-    bleu_conf = "#00B7FF"
+    bleu_conf = "#09BDEB" # Le bleu Confluence
 
     # --- TITRE PRINCIPAL ---
     titre = data.get("title", data.get("name", "Règle sans titre"))
-    markup += f"<h1 style='color: {bleu_conf};'>ENGIE – Détection : {titre}</h1>\n<hr>\n\n"
+    markup += f"<h1 style='color: {bleu_conf};'>ENGIE – Détection FinOps : {titre}</h1>\n"
+    markup += "<p><i>Document de référence généré automatiquement pour le suivi et la gouvernance de l'infrastructure Cloud.</i></p>\n<hr>\n\n"
 
     # --- INFORMATIONS GÉNÉRALES ---
     markup += f"<h2 style='color: {bleu_conf};'>📌 Informations générales</h2>\n\n"
+    markup += "<p>Ce tableau résume la carte d'identité de la règle de détection. Il permet aux équipes Cloud et aux Product Owners d'identifier rapidement la nature du gaspillage ciblé.</p>\n\n"
 
     sev = str(data.get("severity", "medium")).lower()
     if sev == "high":
-        sev_display = "🔴 High"
+        sev_display = "🔴 High (Action prioritaire)"
     elif sev == "low":
-        sev_display = "🟢 Low"
+        sev_display = "🟢 Low (Optimisation de fond)"
     else:
-        sev_display = "🟡 Medium"
+        sev_display = "🟡 Medium (À traiter au prochain sprint)"
 
     markup += "| Élément | Détails |\n"
     markup += "| --- | --- |\n"
-    markup += f"| **ID** | {data.get('id', '-')} |\n"
-    markup += f"| **Nom** | {data.get('name', '-')} |\n"
-    markup += f"| **Titre** | {titre} |\n"
-    markup += f"| **Catégorie** | {str(data.get('category', '-')).capitalize()} |\n"
-    markup += f"| **Sévérité** | {sev_display} |\n\n"
+    markup += f"| **ID Unique** | {data.get('id', '-')} |\n"
+    markup += f"| **Nom technique** | {data.get('name', '-')} |\n"
+    markup += f"| **Catégorie FinOps** | {str(data.get('category', '-')).capitalize()} (Gaspillage / Sous-utilisation) |\n"
+    markup += f"| **Sévérité / Urgence** | {sev_display} |\n\n"
     markup += "<hr>\n\n"
 
-    # --- DESCRIPTION ---
-    markup += f"<h2 style='color: {bleu_conf};'>📄 Description</h2>\n\n"
-    markup += f"{data.get('description', 'Aucune description.')}\n\n"
+    # --- DESCRIPTION DÉTAILLÉE ---
+    markup += f"<h2 style='color: {bleu_conf};'>📄 Description détaillée</h2>\n\n"
+    markup += "<p>Dans le cadre de notre démarche d'optimisation continue (FinOps / Green IT), cette règle a été mise en place pour assainir nos environnements cloud.</p>\n"
+    markup += f"<p><b>🎯 Objectif principal :</b> {data.get('description', 'Aucune description.')}</p>\n"
+    markup += "<p>L'identification proactive de ces ressources permet non seulement de réduire notre facturation mensuelle Azure, mais également d'alléger la dette technique globale de notre système d'information.</p>\n\n"
     markup += "<hr>\n\n"
 
-    # --- SCOPE ---
-    markup += f"<h2 style='color: {bleu_conf};'>🎯 Scope</h2>\n\n"
+    # --- PÉRIMÈTRE (SCOPE) ---
+    markup += f"<h2 style='color: {bleu_conf};'>🔭 Périmètre d'analyse (Scope)</h2>\n\n"
+    markup += "<p>L'algorithme de détection scanne de manière continue l'architecture Cloud pour analyser spécifiquement le type de ressource suivant :</p>\n"
     markup += "```\n"
     markup += f"{data.get('scope', '-')}\n"
     markup += "```\n\n"
     markup += "<hr>\n\n"
 
     # --- CONDITIONS DE DÉTECTION ---
-    markup += f"<h2 style='color: {bleu_conf};'>✅ Conditions de détection</h2>\n\n"
-    markup += f"Une ressource de type `{data.get('scope', 'ressource')}` est considérée comme vide si :\n\n"
+    markup += f"<h2 style='color: {bleu_conf};'>⚙️ Logique de détection</h2>\n\n"
+    markup += f"<p>Une ressource appartenant au périmètre <code>{data.get('scope', 'ressource')}</code> est flagguée comme <b>non-conforme ou inutile</b> par notre moteur si elle répond strictement aux critères techniques ci-dessous :</p>\n\n"
 
     cond_lines = []
     for c in data.get("conditions", []):
@@ -55,15 +58,11 @@ def generer_format_confluence(data):
             logic_op = f" {c['logic'].upper()} "
             sub_rules = []
             for r in c.get("rules", []):
-                sub_rules.append(
-                    f"{r.get('field')} {r.get('operator')} {r.get('value', '')}".strip()
-                )
+                sub_rules.append(f"{r.get('field')} {r.get('operator')} {r.get('value', '')}".strip())
             cond_lines.append(f"({logic_op.join(sub_rules)})")
         else:
             unite = f" {c.get('unit')}" if "unit" in c else ""
-            cond_lines.append(
-                f"{c.get('field')} {c.get('operator')} {c.get('value', '')}{unite}".strip()
-            )
+            cond_lines.append(f"{c.get('field')} {c.get('operator')} {c.get('value', '')}{unite}".strip())
 
     markup += "```\n"
     markup += "\n AND \n".join(cond_lines) + "\n"
@@ -71,66 +70,44 @@ def generer_format_confluence(data):
     markup += "<hr>\n\n"
 
     # --- EXCLUSIONS ---
-    markup += f"<h2 style='color: {bleu_conf};'>🚫 Exclusions</h2>\n\n"
-    markup += "Certaines ressources sont volontairement ignorées :\n\n"
+    markup += f"<h2 style='color: {bleu_conf};'>🛡️ Exceptions et Exclusions</h2>\n\n"
+    markup += "<p>Afin d'éviter les faux positifs et de ne pas perturber les ressources critiques de production (Business Continuity), certaines ressources sont volontairement exclues de cette politique de nettoyage :</p>\n\n"
 
     exclusions = data.get("exclusions", [])
     if exclusions:
         for idx, exc in enumerate(exclusions, 1):
-            reason = exc.get("reason", "Aucune raison spécifiée")
-            markup += f"<h4 style='color: {bleu_conf};'>{idx}. {reason}</h4>\n\n"
-            markup += f"* **Champ :** `{exc.get('field', '-')}`\n"
-            markup += (
-                f"* **Condition :** {exc.get('operator', '-')} `{exc.get('value', 'isNotNull')}`\n"
-            )
-            markup += f"* **Raison :** {reason}\n\n"
+            reason = exc.get("reason", "Raison métier non spécifiée")
+            markup += f"<h4 style='color: {bleu_conf};'>Exception {idx} : {reason}</h4>\n\n"
+            markup += f"<ul>\n"
+            markup += f"<li><b>Critère d'exclusion :</b> Le champ <code>{exc.get('field', '-')}</code> doit valider la condition {exc.get('operator', '-')} <code>{exc.get('value', 'isNotNull')}</code>.</li>\n"
+            markup += f"<li><b>Justification :</b> {reason}</li>\n"
+            markup += f"</ul>\n\n"
     else:
-        markup += "_Aucune exclusion configurée pour cette règle._\n\n"
+        markup += "<p><i>Aucune exclusion n'est configurée pour cette règle. Toute ressource détectée est considérée comme éligible à la remédiation.</i></p>\n\n"
     markup += "<hr>\n\n"
-
-    # --- ENRICHISSEMENT DES DONNÉES ---
-    markup += f"<h2 style='color: {bleu_conf};'>📊 Enrichissement des données</h2>\n\n"
-
-    enrichment = data.get("enrichment", {})
-
-    markup += f"<h3 style='color: {bleu_conf};'>💰 Estimation des coûts</h3>\n\n"
-    markup += f"* Métrique : {enrichment.get('costEstimate', 'N/A')}\n\n"
-
-    markup += f"<h3 style='color: {bleu_conf};'>📋 Champs supplémentaires collectés</h3>\n\n"
-    fields = enrichment.get("fields", [])
-    if fields:
-        for f in fields:
-            markup += f"* {f}\n"
-    else:
-        markup += "* Aucun champ supplémentaire collecté.\n"
-    markup += "\n<hr>\n\n"
 
     # --- IMPACT ---
-    markup += f"<h2 style='color: {bleu_conf};'>⚠️ Impact</h2>\n\n"
-    markup += f"Une ressource spécifiée comme `{data.get('id')}` vide entraîne un **coût inutile de compute réservé**, même en l'absence d'application déployée ou d'usage réel.\n\n"
+    markup += f"<h2 style='color: {bleu_conf};'>⚠️ Impact Business & Écologique</h2>\n\n"
+    markup += f"<p>Le maintien d'une ressource de type <code>{data.get('id')}</code> sans justification métier engendre un <b>coût inutile de compute ou de stockage réservé</b> auprès de notre fournisseur Cloud.</p>\n"
+    markup += "<p>Outre l'impact financier direct sur la facture, l'accumulation de ces ressources 'orphelines' (Cloud Waste) complexifie les audits de sécurité et augmente l'empreinte carbone globale du groupe ENGIE, allant à l'encontre de nos objectifs de sobriété numérique.</p>\n\n"
     markup += "<hr>\n\n"
 
-    # --- RECOMMANDATION ---
-    markup += f"<h2 style='color: {bleu_conf};'>💡 Recommandation</h2>\n\n"
+    # --- RECOMMANDATION & RÉSOLUTION ---
+    markup += f"<h2 style='color: {bleu_conf};'>💡 Résolution et Remédiation</h2>\n\n"
     reco = data.get("recommendation", {})
 
-    markup += f"<h3 style='color: {bleu_conf};'>🛠️ Action recommandée</h3>\n\n"
-    markup += f"* ➡️ {reco.get('description', 'Aucune action spécifiée.')}\n\n"
-
-    markup += f"<h3 style='color: {bleu_conf};'>📄 Détails</h3>\n\n"
-    markup += f"* L'action automatisée requise est le nettoyage de type : *{str(reco.get('action', 'N/A')).upper()}*\n"
-    markup += "* Optimisation directe des coûts cloud Azure.\n\n"
+    markup += f"<h3 style='color: {bleu_conf};'>🛠️ Action préconisée pour les équipes</h3>\n\n"
+    markup += f"<p><b>Instruction :</b> {reco.get('description', 'Aucune action spécifiée.')}</p>\n"
+    markup += f"<p>L'action requise pour assainir le système est une opération de type : <b>{str(reco.get('action', 'N/A')).upper()}</b>.</p>\n\n"
 
     risk = str(reco.get("risk", "medium")).lower()
     risk_display = (
-        "🟢 Low" if risk == "low" else "🔴 High" if risk == "high" else "🟡 Medium"
+        "🟢 Faible (Nettoyage sans impact sur l'applicatif)" if risk == "low" else "🔴 Élevé (Vérifier les dépendances avant action)" if risk == "high" else "🟡 Modéré (Test recommandé avant nettoyage)"
     )
-    markup += f"<h3 style='color: {bleu_conf};'>⚖️ Niveau de risque</h3>\n\n* {risk_display}\n\n"
+    markup += f"<h3 style='color: {bleu_conf};'>⚖️ Analyse des risques opérationnels</h3>\n<p>Niveau de risque estimé de l'action de remédiation : <b>{risk_display}</b>.</p>\n\n"
 
-    markup += f"<h3 style='color: {bleu_conf};'>💸 Économies potentielles</h3>\n\n"
-    markup += (
-        f"* Économies estimées : *{reco.get('savings', '100%')} des coûts associés*\n"
-    )
+    markup += f"<h3 style='color: {bleu_conf};'>💸 Gain estimé post-remédiation</h3>\n\n"
+    markup += f"<p>En appliquant cette recommandation, l'équipe FinOps estime une récupération d'environ <b>{reco.get('savings', '100%')}</b> des coûts associés à cette ressource. La métrique de référence utilisée pour ce calcul est basée sur la variable : <code>{data.get('enrichment', {}).get('costEstimate', 'N/A')}</code>.</p>\n"
 
     return markup
 
@@ -171,30 +148,24 @@ with col1:
     zone_texte_json = st.text_area(
         label="Code source JSON de la règle :",
         value=valeur_zone_texte,
-        height=500,
+        height=600,
     )
 
 with col2:
     st.subheader("2. Récupère ta fiche Confluence")
 
-    if st.button("Générer la fiche", type="primary"):
+    if st.button("Générer la fiche détaillée", type="primary"):
         try:
             dictionnaire_json = json.loads(zone_texte_json)
             code_confluence = generer_format_confluence(dictionnaire_json)
 
-            st.success("✅ Fiche générée avec succès !")
+            st.success("✅ Fiche détaillée générée avec succès !")
             
-            st.write("###Option 1 : Copier le rendu visuel (Recommandé)")
-            st.info("💡 **Comment faire ?** Sélectionne tout le texte dans le cadre ci-dessous, fais `Ctrl+C` et colle avec `Ctrl+V` dans Confluence. Les titres seront parfaitement bleus !")
+            st.write("###Copier le rendu visuel")
+            st.info("💡 Sélectionne tout le texte dans le cadre ci-dessous, fais `Ctrl+C` et colle avec `Ctrl+V` dans Confluence.")
             
-            # Le paramètre unsafe_allow_html=True permet d'interpréter notre code couleur HTML
             with st.container(border=True):
                 st.markdown(code_confluence, unsafe_allow_html=True)
-
-            st.write("---")
-            st.write("### 💻 Option 2 : Code source (Alternative)")
-            st.write("Si besoin du code brut pour l'insérer avec la commande `/html` de Confluence :")
-            st.code(code_confluence, language="html")
 
         except json.JSONDecodeError as e:
             st.error(f"❌ Erreur de syntaxe JSON : {e}")
